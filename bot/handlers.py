@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from aiogram import Bot, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from bot_config import VERSION, ADMIN_IDS
+from bot_config import ADMIN_IDS
 from database.db import get_panels, add_admin, remove_admin, get_admins, delete_panel, save_panel, set_log_channel, get_log_channel
 from bot.menus import config_selection_menu, delete_panel_menu, main_menu, admin_management_menu, note_menu, panel_selection_menu, panel_action_menu, user_action_menu, create_menu_layout, panel_login_menu, protocol_selection_menu, users_list_menu
 from bot.states import Form
@@ -50,7 +50,7 @@ async def start(message: types.Message, state: FSMContext, bot: Bot):
             InlineKeyboardButton(text="👨‍💼 بخش مدیریت", callback_data="manage_admins") if is_owner(chat_id) else None
         ]
         buttons = [b for b in buttons if b]
-        message = await bot.send_message(chat_id, f"🎉 به ربات مدیر خوش آمدید (نسخه {VERSION})", reply_markup=create_menu_layout(buttons))
+        message = await bot.send_message(chat_id, f"به ربات مدیریت پنل خوش امدید !", reply_markup=create_menu_layout(buttons))
         await state.update_data(login_messages=[message.message_id])
 
 async def show_user_info_for_owner(message: types.Message, state: FSMContext, chat_id: int, bot: Bot):
@@ -408,7 +408,7 @@ async def button_callback(query: types.CallbackQuery, state: FSMContext, bot: Bo
             return
         await state.set_state(Form.awaiting_create_username)
         buttons = [InlineKeyboardButton(text="🎲 تولید نام تصادفی", callback_data="random_username")]
-        message = await bot.send_message(chat_id, "📝 نام کاربری را وارد کنید:", reply_markup=create_menu_layout(buttons, row_width=1))
+        message = await bot.send_message(chat_id, "📝 نام کاربری را وارد کنید:", reply_markup=create_menu_layout(buttons))
         await state.update_data(login_messages=[message.message_id])
     elif data == "random_username":
         random_username = str(uuid.uuid4())[:8]
