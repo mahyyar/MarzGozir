@@ -1,8 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-
 def create_menu_layout(buttons: list, buttons_per_row: int = 2) -> InlineKeyboardMarkup:
-    menu = InlineKeyboardMarkup(inline_keyboard=[])  # صراحتاً inline_keyboard را به عنوان لیست خالی تعریف می‌کنیم
+    menu = InlineKeyboardMarkup(inline_keyboard=[])
     current_row = []
     for button in buttons:
         if button:
@@ -14,7 +13,6 @@ def create_menu_layout(buttons: list, buttons_per_row: int = 2) -> InlineKeyboar
         menu.inline_keyboard.append(current_row)
     return menu
 
-
 def main_menu(is_owner: bool) -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text="➕ افزودن پنل جدید", callback_data="add_server"),
@@ -23,7 +21,6 @@ def main_menu(is_owner: bool) -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="👨‍💼 بخش مدیریت", callback_data="manage_admins") if is_owner else None
     ]
     return create_menu_layout([b for b in buttons if b], buttons_per_row=2)
-
 
 def admin_management_menu() -> InlineKeyboardMarkup:
     buttons = [
@@ -35,13 +32,11 @@ def admin_management_menu() -> InlineKeyboardMarkup:
     ]
     return create_menu_layout(buttons, buttons_per_row=2)
 
-
 def panel_login_menu() -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text="🔙 بازگشت به منوی اصلی", callback_data="back_to_main")
     ]
     return create_menu_layout(buttons, buttons_per_row=1)
-
 
 def panel_selection_menu(panels: list) -> InlineKeyboardMarkup:
     buttons = [
@@ -54,7 +49,6 @@ def panel_selection_menu(panels: list) -> InlineKeyboardMarkup:
     ])
     return create_menu_layout(buttons, buttons_per_row=2)
 
-
 def delete_panel_menu(panels: list) -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text=f"🗑 {alias}", callback_data=f"confirm_delete_panel:{alias}")
@@ -63,17 +57,14 @@ def delete_panel_menu(panels: list) -> InlineKeyboardMarkup:
     buttons.append(InlineKeyboardButton(text="🔙 بازگشت به منوی اصلی", callback_data="back_to_main"))
     return create_menu_layout(buttons, buttons_per_row=2)
 
-
 def panel_action_menu() -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text="🔍 جستجوی کاربر", callback_data="search_user"),
         InlineKeyboardButton(text="➕ ایجاد کاربر", callback_data="create_user"),
         InlineKeyboardButton(text="👥 کاربران", callback_data="list_users"),
-        InlineKeyboardButton(text="🗑 حذف کاربران بدون حجم", callback_data="delete_exhausted_users"),
         InlineKeyboardButton(text="🔙 بازگشت به انتخاب پنل", callback_data="back_to_panel_selection")
     ]
     return create_menu_layout(buttons, buttons_per_row=2)
-
 
 def users_list_menu(users: list, page: int = 0, limit: int = 21, total_count: int = None, stats: dict = None, total_pages: int = None) -> InlineKeyboardMarkup:
     def get_status_emoji(user):
@@ -117,7 +108,6 @@ def users_list_menu(users: list, page: int = 0, limit: int = 21, total_count: in
     buttons.append(InlineKeyboardButton(text="🔙 بازگشت", callback_data="back_to_panel_action_menu"))
     return create_menu_layout(buttons, buttons_per_row=3)
 
-
 def user_action_menu(username: str) -> InlineKeyboardMarkup:
     menu = InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -142,14 +132,12 @@ def user_action_menu(username: str) -> InlineKeyboardMarkup:
     ])
     return menu
 
-
 def note_menu() -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text="📝 بدون یادداشت", callback_data="set_note_none"),
         InlineKeyboardButton(text="🔙 بازگشت", callback_data="back_to_user_menu_note")
     ]
     return create_menu_layout(buttons, buttons_per_row=1)
-
 
 def protocol_selection_menu(username: str) -> InlineKeyboardMarkup:
     buttons = [
@@ -161,10 +149,9 @@ def protocol_selection_menu(username: str) -> InlineKeyboardMarkup:
     ]
     return create_menu_layout(buttons, buttons_per_row=2)
 
-
 def config_selection_menu(available_inbounds: list, selected_inbounds: list, username: str) -> InlineKeyboardMarkup:
     import re
-    menu = InlineKeyboardMarkup(inline_keyboard=[])  # صراحتاً inline_keyboard را به عنوان لیست خالی تعریف می‌کنیم
+    menu = InlineKeyboardMarkup(inline_keyboard=[])
     current_row = []
     for inbound in available_inbounds:
         button_text = f"✅ {inbound}" if inbound in selected_inbounds else f"⬜ {inbound}"
