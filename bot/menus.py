@@ -1,13 +1,13 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from typing import List, Optional
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-def create_menu_layout(buttons: List[Optional[InlineKeyboardButton]], row_width: int = 2) -> InlineKeyboardMarkup:
-    menu = InlineKeyboardMarkup(inline_keyboard=[], row_width=row_width)
+
+def create_menu_layout(buttons: list, buttons_per_row: int = 2) -> InlineKeyboardMarkup:
+    menu = InlineKeyboardMarkup(inline_keyboard=[])  # صراحتاً inline_keyboard را به عنوان لیست خالی تعریف می‌کنیم
     current_row = []
     for button in buttons:
         if button:
             current_row.append(button)
-            if len(current_row) >= row_width:
+            if len(current_row) >= buttons_per_row:
                 menu.inline_keyboard.append(current_row)
                 current_row = []
     if current_row:
@@ -18,11 +18,12 @@ def create_menu_layout(buttons: List[Optional[InlineKeyboardButton]], row_width:
 def main_menu(is_owner: bool) -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text="➕ افزودن پنل جدید", callback_data="add_server"),
-        None,  # Placeholder to keep row_width alignment
+        None,
         InlineKeyboardButton(text="📌 مدیریت پنل‌ها", callback_data="manage_panels"),
         InlineKeyboardButton(text="👨‍💼 بخش مدیریت", callback_data="manage_admins") if is_owner else None
     ]
-    return create_menu_layout([b for b in buttons if b], row_width=2)
+    return create_menu_layout([b for b in buttons if b], buttons_per_row=2)
+
 
 def admin_management_menu() -> InlineKeyboardMarkup:
     buttons = [
@@ -32,13 +33,15 @@ def admin_management_menu() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="📋 تنظیم کانال لاگ", callback_data="set_log_channel"),
         InlineKeyboardButton(text="🔙 بازگشت به منوی اصلی", callback_data="back_to_main")
     ]
-    return create_menu_layout(buttons, row_width=2)
+    return create_menu_layout(buttons, buttons_per_row=2)
+
 
 def panel_login_menu() -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text="🔙 بازگشت به منوی اصلی", callback_data="back_to_main")
     ]
-    return create_menu_layout(buttons, row_width=1)
+    return create_menu_layout(buttons, buttons_per_row=1)
+
 
 def panel_selection_menu(panels: list) -> InlineKeyboardMarkup:
     buttons = [
@@ -49,7 +52,8 @@ def panel_selection_menu(panels: list) -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="🗑 حذف پنل", callback_data="delete_panel"),
         InlineKeyboardButton(text="🔙 بازگشت به منوی اصلی", callback_data="back_to_main")
     ])
-    return create_menu_layout(buttons, row_width=2)
+    return create_menu_layout(buttons, buttons_per_row=2)
+
 
 def delete_panel_menu(panels: list) -> InlineKeyboardMarkup:
     buttons = [
@@ -57,19 +61,21 @@ def delete_panel_menu(panels: list) -> InlineKeyboardMarkup:
         for alias, _, _, _, _ in panels
     ]
     buttons.append(InlineKeyboardButton(text="🔙 بازگشت به منوی اصلی", callback_data="back_to_main"))
-    return create_menu_layout(buttons, row_width=2)
+    return create_menu_layout(buttons, buttons_per_row=2)
+
 
 def panel_action_menu() -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text="🔍 جستجوی کاربر", callback_data="search_user"),
         InlineKeyboardButton(text="➕ ایجاد کاربر", callback_data="create_user"),
         InlineKeyboardButton(text="👥 کاربران", callback_data="list_users"),
+        InlineKeyboardButton(text="🗑 حذف کاربران بدون حجم", callback_data="delete_exhausted_users"),
         InlineKeyboardButton(text="🔙 بازگشت به انتخاب پنل", callback_data="back_to_panel_selection")
     ]
-    return create_menu_layout(buttons, row_width=2)
+    return create_menu_layout(buttons, buttons_per_row=2)
+
 
 def users_list_menu(users: list, page: int = 0, limit: int = 21, total_count: int = None, stats: dict = None, total_pages: int = None) -> InlineKeyboardMarkup:
-    # users: list of user dicts
     def get_status_emoji(user):
         status = user.get('status', '').lower()
         expire = user.get('expire')
@@ -77,32 +83,27 @@ def users_list_menu(users: list, page: int = 0, limit: int = 21, total_count: in
         used_traffic = user.get('used_traffic', 0) or 0
         import time
         now = int(time.time())
-        # Expired: expire exists and is in the past
         if expire and expire > 0 and expire < now:
-            return '⏰'  # Expired
+            return '⏰'
         if status == 'on_hold':
-            return '🟠'  # On hold
+            return '🟠'
         if status == 'active':
             if data_limit > 0 and used_traffic >= data_limit:
-                return '🚫'  # Limited
+                return '🚫'
             else:
-                return '✅'  # Active
+                return '✅'
         elif status == 'disabled':
             return '⛔'
         else:
             return '❓'
     buttons = []
-
     for user in users:
         username = user.get('username', '-')
         emoji = get_status_emoji(user)
         buttons.append(InlineKeyboardButton(text=f"{emoji} {username}", callback_data=f"user_info:{username}"))
-    # Pagination controls
     nav_buttons = []
-    # Show prev if not first page
     if page > 0:
         nav_buttons.append(InlineKeyboardButton(text="⬅️ قبلی", callback_data=f"prev_users_page:{page-1}"))
-    # Show next if there are more users after this page
     has_next = False
     if total_count is not None:
         if (page + 1) * limit < total_count:
@@ -113,14 +114,12 @@ def users_list_menu(users: list, page: int = 0, limit: int = 21, total_count: in
         nav_buttons.append(InlineKeyboardButton(text="بعدی ➡️", callback_data=f"next_users_page:{page+1}"))
     if nav_buttons:
         buttons.extend(nav_buttons)
-    # Add back button to user list
     buttons.append(InlineKeyboardButton(text="🔙 بازگشت", callback_data="back_to_panel_action_menu"))
-    # 7 rows, 3 per row
-    return create_menu_layout(buttons, row_width=3)
+    return create_menu_layout(buttons, buttons_per_row=3)
+
 
 def user_action_menu(username: str) -> InlineKeyboardMarkup:
-    menu = InlineKeyboardMarkup(inline_keyboard=[], row_width=2)
-    menu.inline_keyboard = [
+    menu = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="🗑 حذف کاربر", callback_data=f"delete_user:{username}"),
             InlineKeyboardButton(text="⚙️ مدیریت کانفیگ‌ها", callback_data=f"manage_configs:{username}")
@@ -140,15 +139,17 @@ def user_action_menu(username: str) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="🔙 بازگشت به لیست کاربران", callback_data="back_to_users_list_menu")
         ]
-    ]
+    ])
     return menu
+
 
 def note_menu() -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(text="📝 بدون یادداشت", callback_data="set_note_none"),
         InlineKeyboardButton(text="🔙 بازگشت", callback_data="back_to_user_menu_note")
     ]
-    return create_menu_layout(buttons, row_width=1)
+    return create_menu_layout(buttons, buttons_per_row=1)
+
 
 def protocol_selection_menu(username: str) -> InlineKeyboardMarkup:
     buttons = [
@@ -158,11 +159,12 @@ def protocol_selection_menu(username: str) -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="Shadowsocks", callback_data=f"select_protocol:shadowsocks:{username}"),
         InlineKeyboardButton(text="🔙 بازگشت", callback_data=f"back_to_user_menu:{username}")
     ]
-    return create_menu_layout(buttons, row_width=2)
+    return create_menu_layout(buttons, buttons_per_row=2)
+
 
 def config_selection_menu(available_inbounds: list, selected_inbounds: list, username: str) -> InlineKeyboardMarkup:
     import re
-    menu = InlineKeyboardMarkup(inline_keyboard=[], row_width=2)
+    menu = InlineKeyboardMarkup(inline_keyboard=[])  # صراحتاً inline_keyboard را به عنوان لیست خالی تعریف می‌کنیم
     current_row = []
     for inbound in available_inbounds:
         button_text = f"✅ {inbound}" if inbound in selected_inbounds else f"⬜ {inbound}"
