@@ -41,6 +41,12 @@ curl -o install.sh -L https://raw.githubusercontent.com/mahyyar/marzgozir/main/i
 
 - [@imahiar](https://t.me/imahiar)
 
+
+## Stargazers over time
+
+
+[![Stargazers over time](https://starchart.cc/mahyyar/marzgozir.svg)](https://starchart.cc/mahyyar/marzgozir)
+
 ---
 <div align="center">
 با MarzGozir مدیریت را آسان و حرفه‌ای تجربه کنید!
